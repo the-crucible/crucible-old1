@@ -1,0 +1,5 @@
+# Redirect everything through the
+# frontend controller
+
+RewriteEngine on
+RewriteRule ^(.*)$ index.php [QSA,L]
