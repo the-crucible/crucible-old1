@@ -13,15 +13,14 @@ $config = array(
     
     /**
      * Configurations related to all the apps. This block contains 
-     * configurations which is applicable to all the apps but apps
-     * override these settings in their own setups
+     * configurations which is applicable to all the apps and configurations
+     * in this block will override the settings in all the block
      */
     'apps' => array(
         /**
          * This setting can turn the whole website down
          */
         'is_active' => true,
-        'cache' => 'file', /* possible values memory, apc , false */
     )
 )
 ?>

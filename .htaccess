@@ -2,4 +2,4 @@
 # frontend controller
 
 RewriteEngine on
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^(.*)$ crucible.php [QSA,L]

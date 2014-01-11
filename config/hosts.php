@@ -4,9 +4,11 @@
  * related to which host
  */
 $config = array(
-    'crucible.mn.com' => array(
+    'crucible_mn_com' => array(
         'app' => 'default',
-        'alt' => 'crucible1.mn.com'
+        'ip'  => 'all',
+        'mode'=> 'prod',
+        'web_debugger'=>false
     )
 )
 ?>
