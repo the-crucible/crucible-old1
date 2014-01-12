@@ -35,5 +35,6 @@ $config = array(
     'ViewNotFoundException'=> 'exceptions/ViewNotFoundException.class.php',
     'InvalidViewInputException'=> 'exceptions/InvalidViewInputException.class.php',
     'ElementNotFoundException' => 'exceptions/ElementNotFoundException.class.php',
+    'FileNotFound404Exception' => 'exceptions/FileNotFound404Exception.class.php'
 )
 ?>

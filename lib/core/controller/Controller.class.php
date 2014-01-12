@@ -68,7 +68,7 @@ class Controller {
             # Start executing view part;
             $this->_initViewObject();
             
-            
+            $this->response->setBody($this->view->getBody());
         }else{
             throw new NoActionFoundException($action);
         }
@@ -124,8 +124,6 @@ class Controller {
         $this->view->addMeta($view_config['meta']);
         
         $this->view->setInputArr($this->_result_arr);
-        
-        $this->response->setBody($this->view->getBody());
         
     }
     

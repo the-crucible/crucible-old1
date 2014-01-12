@@ -8,7 +8,8 @@ $config = array(
         'app' => 'default',
         'ip'  => 'all',
         'mode'=> 'prod',
-        'web_debugger'=>false
+        'web_debugger'=>false,
+        'static_paths'=> array('js' , 'css' , 'img')
     )
 )
 ?>
