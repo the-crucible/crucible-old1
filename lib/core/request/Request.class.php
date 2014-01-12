@@ -203,6 +203,36 @@ class Request {
     }
     
     /**
+     * To get the name of the app
+     * 
+     * @return string
+     */
+    public function getApp(){
+        $named = $this->getNamed();
+        return isset($named['app'])? $named['app'] : null; 
+    }
+    
+    /**
+     * To get the name of the controller
+     * 
+     * @return string
+     */
+    public function getController(){
+        $named = $this->getNamed();
+        return isset($named['controller'])? $named['controller'] : null; 
+    }
+    
+    /**
+     * To get the name of the action
+     * 
+     * @return string
+     */
+    public function getAction(){
+        $named = $this->getNamed();
+        return isset($named['action'])? $named['action'] : null; 
+    }
+    
+    /**
      * getPathInArray
      * 
      * This function checks the url structure and convert it into

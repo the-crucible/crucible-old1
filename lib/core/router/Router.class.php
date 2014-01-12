@@ -12,7 +12,18 @@ class Router {
      */
     private static $_instance = null;
     
+    /**
+     * Variable to store named arguments
+     * 
+     * @var array
+     */
     private $_named_params = array();
+    
+    /**
+     * Variable to store argument array
+     * 
+     * @var array
+     */
     private $_arguments    = array();
 
     /**
@@ -52,7 +63,7 @@ class Router {
      */
     private function _processRoutes($request_arr, $app) {
         # Get the route config file from that app
-        $route_file_path = $this->_getAppPath($app) . 'config' . DS . 'router.php';
+        $route_file_path = $this->getAppPath($app) . 'config' . DS . 'router.php';
         # Get the route config
         $routes = Config::read($route_file_path);
 
@@ -97,6 +108,15 @@ class Router {
         }
     }
 
+    /**
+     * This function will take one route and try to match 
+     * with the path. If matched it will return an array 
+     * containing the result otherwise false
+     * 
+     * @param type $route_frag_arr
+     * @param type $request_arr
+     * @return mixed
+     */
     private function _matchRoute($route_frag_arr, $request_arr) {
         # One very simple check before any check should start
         # is that count of $request_arr should be equal or greater 
@@ -145,7 +165,13 @@ class Router {
         );
     }
     
-    public function _getAppPath($app){
+    /**
+     * Function to return app path
+     * 
+     * @param string $app
+     * @return string
+     */
+    public function getAppPath($app){
         if($app == 'system'){
             $path = ROOT . DS . 'lib' . DS . 'system' . DS;
         }else if($app == 'setup'){
@@ -156,10 +182,21 @@ class Router {
         return $path;
     }
     
+    /**
+     * Getter function for argument array
+     * 
+     * @return array
+     */
     public function getArguments(){
         return $this->_arguments;
     }
     
+    
+    /**
+     * Getter function for named params
+     * 
+     * @return array
+     */
     public function getNamedParams(){
         return $this->_named_params;
     }

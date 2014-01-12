@@ -8,7 +8,9 @@ $config = array(
         
     ),
     'prod'=> array(
-        //'test' => 'no test'
+        'test' => 'module test',
+        'test2'=> 'its a test 2'
+        
     )
 )
 ?>

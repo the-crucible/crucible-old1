@@ -35,8 +35,8 @@ $config = array(
     'default' => array(
         'route' => '/',
         'params'=> array(
-            'app' => 'system',
-            'controller' => 'default',
+            //'app' => 'system',
+            'controller' => 'hello',
             'action' => 'index'
         ),
     )

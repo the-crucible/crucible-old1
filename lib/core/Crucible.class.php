@@ -36,6 +36,13 @@ class Crucible {
     private $_router  = null;
     
     /**
+     * This variable will hold all the components
+     * 
+     * @var array
+     */
+    private $_components = array();
+    
+    /**
      * Constructor function for main crucible class
      */
     private function __construct() {
@@ -49,6 +56,12 @@ class Crucible {
         $this->_getHostConfig();
         # Init Router
         $this->_initRouter();
+        # Now when we know all the basic parameters of the 
+        # request, we will merge all the configurations defined
+        # at different levels and then start processing the request.
+        $this->_mergeConfigurations();
+        # Now load all the components 
+        $this->_initAllComponents();
         
     }
 
@@ -61,9 +74,6 @@ class Crucible {
         Config::load($root_config_path . 'core.php');
         Config::load($root_config_path . 'hosts.php');
         Config::load($root_config_path . 'database.php');
-        
-        # Loading crucible config files
-        Config::load($lib_config_path . 'factories.php');
     }
 
     /**
@@ -147,21 +157,117 @@ class Crucible {
     
     private function _initRouter(){
         $this->_router = Router::getInstance();
+        
+        # Set the named parameter you set from the router
         $this->getRequest()->setNamed($this->_router->getNamedParams());
+        # Set the arguments you get from the router
         $this->getRequest()->setArgs($this->_router->getArguments());
+        
+        # Set the name of the new app defined in the router.php if any
+        $named_arg = $this->getRequest()->getNamed();
+        $new_app_name = $named_arg['app'];
+        
+        $current_app_name = Config::get("hosts.my_host.app");
+        if($current_app_name !== $new_app_name){
+            Config::set("hosts.my_host.app" , $new_app_name);
+            Config::set("hosts.my_host.path" , $this->getRouter()->getAppPath($new_app_name));
+        }
     }
     
     /**
-     * _realignConfigurations
+     * _mergeConfigurations
      * 
-     * This function is required to merge the config data from the
-     * main container with the host specific container and then deal
-     * with all the requests  
+     * This function will do the config merge of different files
+     * 
      */
-    private function _realignConfigurations(){
+    private function _mergeConfigurations(){
+        #Merge all the different files;
         
+        $this->_doConfigMerge('modules');
+        $this->_doConfigMerge('factories');
+        $this->_doConfigMerge('filters');
+        $this->_doConfigMerge('app');
+        $this->_doConfigMerge('views');
     }
     
+    /**
+     * This function is required to merge the config data from the
+     * core container, with the app container and then with the module 
+     * contaner
+     * 
+     * @param type $namespace
+     * @param type $mode
+     */
+    private function _doConfigMerge($namespace){
+        $config_file_name = $namespace . ".php";
+        $app  = $this->getRequest()->getApp();
+        $controller = $this->getRequest()->getController();
+        $mode = Config::get('hosts.my_host.mode');
+        
+        $core_config_path = ROOT . DS . 'lib' . DS . 'core' . DS . 'config' . DS . 'config' . DS;
+        $app_path  = $this->getRouter()->getAppPath($app);
+        $app_config_path    = $app_path . 'config' . DS ;
+        $module_config_path = $app_path . 'modules' . DS . $controller . DS . 'config' . DS; 
+        
+        # First get the file from the core config path;
+        $core_config = array();
+        $core_config_file_path = $core_config_path . $config_file_name;
+         if(is_file($core_config_file_path)){
+            $tmp_core_config = Config::read($core_config_file_path);
+            $all_tmp_core_config = isset($tmp_core_config['all'])? $tmp_core_config['all'] : array();
+            $mode_tmp_core_config = isset($tmp_core_config[$mode])? $tmp_core_config[$mode] : array();
+            $core_config = array_merge($all_tmp_core_config, $mode_tmp_core_config);
+        }
+        # Second get the file from the app config path;
+        $app_config = array();
+        $app_config_file_path = $app_config_path . $config_file_name;
+        if(is_file($app_config_file_path)){
+            $tmp_app_config = Config::read($app_config_file_path);
+            $all_tmp_app_config = isset($tmp_app_config['all'])? $tmp_app_config['all'] : array();
+            $mode_tmp_app_config = isset($tmp_app_config[$mode])? $tmp_app_config[$mode] : array();
+            $app_config = array_merge($all_tmp_app_config, $mode_tmp_app_config);
+        }
+        # Third get the file from the module config path;
+        $module_config = array();
+        $module_config_file_path = $module_config_path . $config_file_name;
+        if(is_file($module_config_file_path)){
+            $tmp_module_config = Config::read($module_config_file_path);
+            $all_tmp_module_config = isset($tmp_module_config['all'])? $tmp_module_config['all'] : array();
+            $mode_tmp_module_config = isset($tmp_module_config[$mode])? $tmp_module_config[$mode] : array();
+            $module_config = array_merge($all_tmp_module_config, $mode_tmp_module_config);
+        }
+        
+        #finally merge them back to back
+        $final_config = array_merge($core_config , $app_config , $module_config);
+        Config::set($namespace , $final_config);
+    }
+    
+    private function _initAllComponents(){
+        $factories_config = Config::get('factories');
+        foreach($factories_config as $name => $config){
+            if($config['handler']){
+                if(isset($config['arguments'])){
+                    $object = new $config['handler']($config['arguments']);
+                }else{
+                    $object = new $config['handler'](array());
+                }
+                $object->init();
+                $this->_components[$name] = $object;
+                
+            }else{
+                // Wrong config
+            }
+        }
+    }
+    
+    public function getComponent($component_name){
+        if(isset($this->_components[$component_name])){
+            return $this->_components[$component_name];
+        }else{
+            return null;
+        }
+    }
+
     /**
      * Getter function for request object
      * 
@@ -171,6 +277,11 @@ class Crucible {
         return $this->_request;
     }
     
+    /**
+     * Getter function for router object
+     * 
+     * @return Router
+     */
     public function getRouter(){
         return $this->_router;
     }
@@ -201,6 +312,23 @@ class Crucible {
         return self::$_instance;
     }
 
+    private function _createController(){
+        $app = $this->getRequest()->getApp();
+        $controller = $this->getRequest()->getController();
+        
+        $app_path = $this->getRouter()->getAppPath($app);
+        $controller_class_dir = $app_path . 'modules' . DS . $controller . DS . 'controller' . DS;
+        $controller_class = ucfirst($controller) . "Controller";
+        $controller_class_path = $controller_class_dir . $controller_class . ".class.php";
+        if(is_file($controller_class_path)){
+            require_once ($controller_class_path);
+            return new $controller_class($this);
+        }else{
+            throw new NoControllerFoundException($controller);
+        }
+        
+    }
+    
     /**
      * dispatch
      * 
@@ -208,8 +336,12 @@ class Crucible {
      * which it is suppossed to do.
      */
     public function dispatch() {
-        print_r($this->_router->getNamedParams());
-        print_r($this->_router->getArguments());
+        # Create a controller
+        $this->_controller = $this->_createController();
+        # Execute the controller;
+        $this->_controller->execute($this->getRequest()->getAction());
+        # Drain the response 
+        Response::getInstance()->drain();
     }
 
 }
