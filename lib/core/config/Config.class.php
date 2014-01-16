@@ -65,7 +65,13 @@ class Config {
                 return null;
             }
         }
-        return $search_arr;
+        # Return a copy of the result;
+        if(is_array($search_arr)){
+            return array_merge(array(),$search_arr);
+        }else{
+            return $search_arr;
+        }
+        
     }
     
     /**

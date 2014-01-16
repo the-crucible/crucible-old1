@@ -20,6 +20,8 @@ $config = array(
      * Components classes
      */
     'PhpSession' => "session/PhpSession.class.php",
+    'Db'         => "db/Db.class.php",
+    'DbResourceContainer' => 'db/DbResourceContainer.class.php',
     
     /**
      * Classes for exceptions
@@ -35,6 +37,9 @@ $config = array(
     'ViewNotFoundException'=> 'exceptions/ViewNotFoundException.class.php',
     'InvalidViewInputException'=> 'exceptions/InvalidViewInputException.class.php',
     'ElementNotFoundException' => 'exceptions/ElementNotFoundException.class.php',
-    'FileNotFound404Exception' => 'exceptions/FileNotFound404Exception.class.php'
+    'FileNotFound404Exception' => 'exceptions/FileNotFound404Exception.class.php',
+    'DbNoConnectException'     => 'exceptions/DbNoConnectException.class.php',
+    'InvalidDbConfigException' => 'exceptions/InvalidDbConfigException.class.php',
+    'DbConnectErrorException'  => 'exceptions/DbConnectErrorException.class.php'
 )
 ?>

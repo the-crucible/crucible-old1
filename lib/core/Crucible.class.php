@@ -381,6 +381,7 @@ class Crucible {
             # Drain the response 
             Response::getInstance()->drain();
         } else {
+            # In case of static content
             # Just drain the response
             Response::getInstance()->drain();
         }

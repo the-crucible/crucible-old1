@@ -28,6 +28,12 @@ $config = array(
                 'cookie_httponly' => '1',
                 'auto_start' => 1
             )
+        ),
+        'db' => array(
+            'handler' => 'Db',
+            'arguments' => array(
+                'identifier' => 'database'
+            )
         )
     )
 )

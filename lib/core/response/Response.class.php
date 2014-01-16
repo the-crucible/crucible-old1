@@ -107,7 +107,7 @@ class Response {
             return $mime_config[$extension];
         }else{
             # else return the mime type of default
-            return 'default';
+            return $mime_config['default'];
         }
     }
 

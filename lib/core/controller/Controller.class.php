@@ -31,6 +31,10 @@ class Controller {
     protected $session;
     
     /**
+     * @var Db
+     */
+    protected $db;
+    /**
      * Its an array to record the result of the array
      * 
      * @var array
@@ -47,6 +51,7 @@ class Controller {
         $this->request = Request::getInstance();
         $this->response= Response::getInstance();
         $this->session = $this->_crucible->getComponent('session');
+        $this->db      = $this->_crucible->getComponent('db'); 
         $this->view    = View::getInstance();
     }
     
