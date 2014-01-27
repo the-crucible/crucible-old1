@@ -34,6 +34,59 @@ $config = array(
             'arguments' => array(
                 'identifier' => 'database'
             )
+        ),
+        'mailer' => array(
+            'handler' => 'SwiftMailer',
+            'arguments' => array(
+                'transport' => 'smtp',
+                'params' => array(
+                    'host' => 'smtp.gmail.com',
+                    'port' => '587',
+                    'user' => 'tej.nri@gmail.com',
+                    'pass' => 'patna@123',
+                    'encryption' => 'tls'
+                )
+                /*
+                # If transport is smtp
+                'params' => array(
+                    'host' => 'localhost',
+                    'port' => '25',
+                    'user' => 'sample',
+                    'pass' => 'sample',
+                    'encryption' => 'ssl' or 'tls'
+                )
+                # If transport is sendmail
+                'params' => array(
+                    'path' => '/usr/bin/sendmail -bs'
+                )
+                # If transport is phpmail
+                'params' => array(
+                    # Nothing is required
+                )
+                # If transport is loadBalanced
+                'params' => array(
+                    't1' => array(
+                        'transport' => 'smtp',
+                        'params' => array(
+                            'host' => 'localhost',
+                            'port' => '25'
+                        )
+                    ),
+                    't2' => array(
+                        'transport' => 'sendmail',
+                        'params' => array(
+                            'path' => '/usr/bin/sendmail -bs'
+                        )
+                    )
+                    't3' => array(
+                        'transport' => 'phpmail',
+                        'params' => array(
+                            # Nothing required
+                        )
+                    )
+                )
+                */
+            )
         )
     )
 )

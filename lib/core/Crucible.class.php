@@ -125,7 +125,7 @@ class Crucible {
                 throw new Exception("Core class file $full_file_path not found");
             }
         } else {
-            throw new Exception("Core class $class_name not found");
+            //throw new Exception("Core class $class_name not found");
         }
     }
 

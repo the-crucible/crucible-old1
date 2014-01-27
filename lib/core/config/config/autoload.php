@@ -22,6 +22,7 @@ $config = array(
     'PhpSession' => "session/PhpSession.class.php",
     'Db'         => "db/Db.class.php",
     'DbResourceContainer' => 'db/DbResourceContainer.class.php',
+    'SwiftMailer' => 'mailer/SwiftMailer.class.php',
     
     /**
      * Classes for exceptions
@@ -40,6 +41,7 @@ $config = array(
     'FileNotFound404Exception' => 'exceptions/FileNotFound404Exception.class.php',
     'DbNoConnectException'     => 'exceptions/DbNoConnectException.class.php',
     'InvalidDbConfigException' => 'exceptions/InvalidDbConfigException.class.php',
-    'DbConnectErrorException'  => 'exceptions/DbConnectErrorException.class.php'
+    'DbConnectErrorException'  => 'exceptions/DbConnectErrorException.class.php',
+    'InvalidMailerConfigException' => 'exceptions/InvalidMailerConfigException.class.php',
 )
 ?>

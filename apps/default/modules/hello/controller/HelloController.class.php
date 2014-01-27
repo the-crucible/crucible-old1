@@ -21,6 +21,18 @@ class HelloController extends Controller{
         
     }
     
+    public function sendmail(){
+        $message = Swift_Message::newInstance();
+        $message->setFrom("tej.nri@gmail.com")
+                ->setTo("tejaswi.sharma@meritnation1.com")
+                ->setSubject("Testing")
+                ->setBody("Hi There", "text/plain");
+        //print_r($message);
+        $failures=null;
+        $this->success = $this->mailer->send($message, $failures);
+        print_r($failures);
+    }
+    
 }
 
 ?>

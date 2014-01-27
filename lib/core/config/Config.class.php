@@ -79,7 +79,7 @@ class Config {
      * 
      * This function will set the value into the config array
      * 
-     * @param string $path Period seperated path eg. "db.default.username"
+     * @param string $path Period seperated path eg. "database.default.username"
      * @param mixed $value value of the config
      */
     public static function set($path, $value){

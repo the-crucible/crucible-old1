@@ -34,6 +34,12 @@ class Controller {
      * @var Db
      */
     protected $db;
+    
+    /**
+     * @var Swift_Mailer
+     */
+    protected $mailer;
+    
     /**
      * Its an array to record the result of the array
      * 
@@ -52,6 +58,7 @@ class Controller {
         $this->response= Response::getInstance();
         $this->session = $this->_crucible->getComponent('session');
         $this->db      = $this->_crucible->getComponent('db'); 
+        $this->mailer  = $this->_crucible->getComponent('mailer'); 
         $this->view    = View::getInstance();
     }
     

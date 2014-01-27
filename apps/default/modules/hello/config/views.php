@@ -10,6 +10,14 @@ $config = array(
             'meta' =>array(
                 array('name'=>"viewport",'content'=>"width=device-width")
             )
+        ),
+        'sendmail' => array(
+            'js' => array('main'),
+            'css'=> array('main'),
+            'title'=>"test title",
+            'meta' =>array(
+                array('name'=>"viewport",'content'=>"width=device-width")
+            )
         )
     )
 )
