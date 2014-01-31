@@ -1,7 +1,16 @@
 <?php
+/**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
- * Description of SwiftMailer
+ * This class will act as a wrapper for swiftmailer library
+ * and create different transport structure defined in the
+ * config
  *
  * @author Tejaswi Sharma <tejaswi@crucible-framework.org>
  */
@@ -11,6 +20,7 @@ require_once(dirname(__FILE__) . DS . 'swiftmailer' . DS . 'swift_required.php')
 
 class SwiftMailer {
     
+    # Different transport type
     const TRANSPORT_SMTP = 'smtp';
     const TRANSPORT_SENDMAIL = 'sendmail';
     const TRANSPORT_PHPMAIL = 'phpmail';
@@ -23,6 +33,11 @@ class SwiftMailer {
     private $_swiftmailer_instance;
     
     /**
+     * __construct
+     * 
+     * This function will create different transport assigned in
+     * the configurations and then create a swiftmailer instance
+     * 
      * @param array $params
      */
     public function __construct($params) {
@@ -38,6 +53,9 @@ class SwiftMailer {
     }
     
     /**
+     * send
+     * 
+     * This function wraps the swftmailer send function
      * 
      * @param Swift_Mime_Message $message
      * @param array $failed_messages
@@ -51,6 +69,16 @@ class SwiftMailer {
         
     }
     
+    /**
+     * __call
+     * 
+     * This function will call all the functions in the
+     * swiftmailer class through this method
+     * 
+     * @param type $name name of the swiftmailer function
+     * @param type $arguments arguments to the function
+     * @return type return of the swift mailer function
+     */
     public function __call($name, $arguments) {
         return call_user_func_array(
             array($this->_swiftmailer_instance, $name), 
@@ -59,6 +87,8 @@ class SwiftMailer {
     }
     
     /**
+     * _getTransport
+     * 
      * This is a factory method to create transport objects 
      * 
      * @param string $transport name of the transport
@@ -89,6 +119,8 @@ class SwiftMailer {
     }
     
     /**
+     * _getSmtpTransport
+     * 
      * This function will return a new SMTP transport object
      * 
      * @param type $params;
@@ -113,6 +145,8 @@ class SwiftMailer {
     }
     
     /**
+     * _getSendmailTransport
+     * 
      * This function will return the Sendmail transport object
      * 
      * @param type $params
@@ -130,6 +164,8 @@ class SwiftMailer {
     
     
     /**
+     * _getPhpMailTransport
+     * 
      * This function will return the Phpmailer transport object
      * 
      * @param type $params
@@ -140,6 +176,8 @@ class SwiftMailer {
     }
     
     /**
+     * _getLoadBalancedTransport
+     * 
      * This function will return the Loadalanced transport object
      * 
      * @param type $params
@@ -154,6 +192,8 @@ class SwiftMailer {
     }
     
     /**
+     * _getFailSafeTransport
+     * 
      * This function will return the Failsafe transport object
      * 
      * @param type $params

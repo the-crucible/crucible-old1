@@ -1,5 +1,15 @@
 <?php
 /**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
+ * Config
+ * 
  * This class will become the central repository
  * of config and will have setter, getter and load
  * functions for the config files
@@ -7,8 +17,9 @@
  * @author applect
  */
 class Config {
+
     public static $_config = array();
-    
+
     /**
      * load
      * 
@@ -20,12 +31,12 @@ class Config {
      * @param string $lable     Starting lable of the config
      * @return bool 
      */
-    public static function load($file_path){
-        $lable  = basename($file_path, ".php"); 
+    public static function load($file_path) {
+        $lable = basename($file_path, ".php");
         $config = self::read($file_path);
         self::$_config[$lable] = $config;
     }
-    
+
     /**
      * read
      * 
@@ -35,15 +46,35 @@ class Config {
      * @return array $config array in the config file
      * @throws NoFileFoundException
      */
-    public static function read($file_path){
-        if(is_file($file_path)){
+    public static function read($file_path) {
+        if (is_file($file_path)) {
             include $file_path;
             return $config;
-        }else{
+        } else {
             throw new NoFileFoundException($file_path);
         }
     }
-    
+
+    public static function readMerged($file_path, $mode) {
+        
+        try{
+            # Read the whole file
+            $tmp_config = Config::read($file_path);
+            
+            # Check if 'all' section in there in the config
+            $all_tmp_config = isset($tmp_config['all']) ? $tmp_config['all'] : array();
+            
+            # Check if the '$mode' section in there in the config
+            $mode_tmp_config = isset($tmp_config[$mode]) ? $tmp_config[$mode] : array();
+            
+            # Merge both the arrays back to back and return;
+            return array_merge($all_tmp_config, $mode_tmp_config);
+        }catch(Exception $e){
+            # return empty array();
+            return array();
+        }
+    }
+
     /**
      * get
      * 
@@ -52,28 +83,27 @@ class Config {
      * @param string $path Period seperated path eg. "db.default.username"
      * @return mixed The value of the config 
      */
-    public static function get($path){
+    public static function get($path) {
         $path = trim($path);
         $path_arr = explode('.', $path);
         $search_arr = self::$_config;
-        
+
         foreach ($path_arr as $value) {
             $value = trim($value);
-            if(array_key_exists($value, $search_arr)){
+            if (array_key_exists($value, $search_arr)) {
                 $search_arr = $search_arr[$value];
-            }else{
+            } else {
                 return null;
             }
         }
         # Return a copy of the result;
-        if(is_array($search_arr)){
-            return array_merge(array(),$search_arr);
-        }else{
+        if (is_array($search_arr)) {
+            return array_merge(array(), $search_arr);
+        } else {
             return $search_arr;
         }
-        
     }
-    
+
     /**
      * set
      * 
@@ -82,26 +112,27 @@ class Config {
      * @param string $path Period seperated path eg. "database.default.username"
      * @param mixed $value value of the config
      */
-    public static function set($path, $value){
-        $path  = trim($path);
-        $value = (is_array($value))? $value: trim($value);
-        
+    public static function set($path, $value) {
+        $path = trim($path);
+        $value = (is_array($value)) ? $value : trim($value);
+
         $path_arr = explode(".", $path);
         $config_arr = &self::$_config;
-        
+
         foreach ($path_arr as $conf_value) {
             $conf_value = trim($conf_value);
-            if(!array_key_exists($conf_value, $config_arr)){
+            if (!array_key_exists($conf_value, $config_arr)) {
                 $config_arr[$conf_value] = array();
             }
             $config_arr = &$config_arr[$conf_value];
             # Check if the $config_arr is an array or not
-            if(!is_array($config_arr)){
+            if (!is_array($config_arr)) {
                 $config_arr = array();
             }
         }
         $config_arr = $value;
     }
+
 }
 
 ?>

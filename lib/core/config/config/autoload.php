@@ -1,4 +1,17 @@
 <?php
+
+/**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
+ * This config file contain all the classes and their corresponding
+ * file to be autoloaded during the execution of the framework.
+ */
 $config = array(
     /**
      * Classes for config management
@@ -11,7 +24,6 @@ $config = array(
     'Request'=> 'request/Request.class.php',
     'Response' => 'response/Response.class.php',
     'Controller' => 'controller/Controller.class.php',
-    'Model' => 'model/Model.class.php',
     'View' => 'view/View.class.php',
     'Router' =>  'router/Router.class.php',
     'Autoload' => 'autoload/Autoload.class.php',
@@ -28,7 +40,6 @@ $config = array(
      * Classes for exceptions
      */
     'NoFileFoundException' => 'exceptions/NoFileFoundException.class.php',
-    'NoLegalMethodException' => 'exceptions/NoLegalMethodException.class.php',
     'NoHostFoundException'   => 'exceptions/NoHostFoundException.class.php',
     'NoRouteFoundException'   => 'exceptions/NoRouteFoundException.class.php',
     'NoControllerFoundException'   => 'exceptions/NoControllerFoundException.class.php',
@@ -43,5 +54,6 @@ $config = array(
     'InvalidDbConfigException' => 'exceptions/InvalidDbConfigException.class.php',
     'DbConnectErrorException'  => 'exceptions/DbConnectErrorException.class.php',
     'InvalidMailerConfigException' => 'exceptions/InvalidMailerConfigException.class.php',
+    'ForwardActionException' => 'exceptions/ForwardActionException.class.php'
 )
 ?>

@@ -1,7 +1,15 @@
 <?php
+/**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
- * Description of View
+ * This class is used to make a html body out of the 
+ * input produced in the controller. 
  *
  * @author Tejaswi Sharma <tejaswi@crucible-framework.org>
  */
@@ -10,10 +18,9 @@ class View {
     const CSS_PATH = "css";
     const JS_PATH = "js";
 
-    /*
+    /**
      * @var View
      */
-
     private static $_instatnce = null;
 
     /**
@@ -92,26 +99,27 @@ class View {
      * Constructor function
      */
     private function __construct() {
-        $app = Request::getInstance()->getApp();
-        $module = Request::getInstance()->getController();
+        $module = Router::getInstance()->getController();
 
-        $app_dir = Router::getInstance()->getAppPath($app);
+        $app_dir = Router::getInstance()->getAppPath();
         $this->_app_template_dir = $app_dir . 'templates' . DS . 'layouts';
         $this->_module_template_dir = $app_dir . 'modules' . DS . $module
                 . DS . 'templates';
     }
 
     /**
-     * 
+     * This sets the input values from which the 
+     * html will be produced
      */
     public function setInputArr($inputArr) {
         $this->_input_arr = $inputArr;
     }
 
     /**
-     * It set the view name 
+     * It set the name of the template file
      * 
      * @param type $view_name
+     * @return bool Is the view is successfully set or not
      */
     public function setView($view_name) {
         if (is_file($this->_module_template_dir . DS . $view_name . '.php')) {
@@ -123,7 +131,7 @@ class View {
     }
 
     /**
-     * It gives view name
+     * It gives the view name of the view file
      * 
      * @return string get view name
      */
@@ -147,7 +155,7 @@ class View {
     }
 
     /**
-     * It returns layout name
+     * It returns the layout name
      * 
      * @return string layout name
      */
@@ -156,7 +164,10 @@ class View {
     }
 
     /**
-     * It get the final view
+     * It get the final processed html by putting together
+     * different templates and substituting values into it 
+     * 
+     * @return string processed HTML
      */
     public function getBody() {
         # First get the view file processed
@@ -170,7 +181,13 @@ class View {
     }
 
     /**
-     * It returns the processes elements.
+     * This function substitute the values in the template file
+     * and return the html
+     * 
+     * @param type $______v______File name of the template file
+     * @param type $______i______arr array of variables
+     * @return string processed HTML
+     * @throws InvalidViewInputException
      */
     private function _processView($______v______File, $______i______arr = null) {
         $____f____a = $this->_getBindArr($______i______arr);
@@ -241,6 +258,7 @@ class View {
     public function getMainView(){
         return $this->_view_content;
     }
+    
     /**
      * echo the main view content
      */
@@ -328,6 +346,11 @@ class View {
         }
     }
 
+    /**
+     * It adds the path of the css file
+     * 
+     * @param type $css_path
+     */
     public static function addStyleSheet($css_path) {
         self::getInstance()->addCss($css_path);
     }
@@ -378,6 +401,9 @@ class View {
         return $this->_meta;
     }
 
+    /**
+     * It prints all the meta tags in the HTML
+     */
     public static function printMeta() {
         $meta_arr = self::getInstance()->getMeta();
         foreach ($meta_arr as $meta_att_arr) {

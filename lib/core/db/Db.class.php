@@ -1,29 +1,66 @@
 <?php
+/**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
- * Description of DB
+ * This class will help interact with databases. This class uses PDO
+ * so pdo extension should be there in the php. This class will give you
+ * a easy wayout to interact with single-master and multi-slave or multi-master
+ * and multi-slave configurations.
  *
  * @author Tejaswi Sharma <tejaswi@crucible-framework.org>
  */
 class Db {
+    # Types of nodes
     const ROOT = '1';
     const GROUP= '2';
     const NODE = '3';
     
+    # Type of operations
     const READ = '4';
     const WRITE= '5';
     
+    /**
+     * Identifier for a server group or node
+     * 
+     * @var string
+     */
     private $_identifier;
+    /**
+     *
+     * @var array of Db objects
+     */
     private $_db_arr;
+    /**
+     * Array of master servers at its disposal
+     * 
+     * @var array
+     */
     private $_masters = array();
+    
+    /**
+     * Array of slave servers at its disposal
+     * 
+     * @var array
+     */
     private $_slaves  = array();
     
+    /**
+     * __construct
+     * 
+     * This function will basically help object to know its node type
+     * and then get its master and slave servers.
+     * 
+     * @param type $input array of inputs
+     */
     public function __construct($input) {
         $this->_identifier = $input['identifier'];
-        # Now here we have to do few things
-        # 1. Need to know who are my master servers
-        # 2. Who is my slave server
-        # Now where will warry acccording to who they are
+       
         # A db object is of three types
         # 1. Global db object: Which has a global idebtifier eg ('db'),
         # 2. Group  db object: Which is a group of servers, generally attached 
@@ -34,7 +71,7 @@ class Db {
         
         $this->_type = $this->_getNodeType($this->_identifier);
         
-        # Now according to that know the master and slave servers
+        # Now according to that we should know the master and slave servers
         $result = $this->_getServers($this->_identifier);
         
         # Set the master servers
@@ -48,6 +85,15 @@ class Db {
         }
     }
     
+    /**
+     * _getServers
+     * 
+     * This function will identigy which are the master and which 
+     * are the slave servers and return them into two buckets
+     * 
+     * @param string $identifier Identifier of the node or group
+     * @return array array of the identifiers of master and slave servers
+     */
     private function _getServers($identifier){
         $server_type = $this->_getNodeType($identifier);
         switch ($server_type){
@@ -63,6 +109,15 @@ class Db {
         return $result;
     }
     
+    /**
+     * _getServersForRootNode
+     * 
+     * It will return the master and slave servers if the root
+     * of the config is given as identifier
+     * 
+     * @param type $identifier Identifier of the root node of the config
+     * @return array array of master and slave servers
+     */
     private function _getServersForRootNode($identifier){
         /**
          * In case of root node it would go like following
@@ -88,6 +143,15 @@ class Db {
         return $result;
     }
     
+    /**
+     * _getServersForGroupNode
+     * 
+     * This will find the master and slave servers if the identifier
+     * of the group node is given
+     * 
+     * @param type $identifier Identifier of the particular group
+     * @return array array of master and slave servers
+     */
     private function _getServersForGroupNode($identifier){
         /*
          * In group node, we have to loop through all the servers and 
@@ -103,6 +167,15 @@ class Db {
         return $result;
     }
     
+    /**
+     * _getSingleServerNode
+     * 
+     * This will find the master or slave server if the identifier
+     * of the server node is given
+     * 
+     * @param type $identifier Identifier of the particular node
+     * @return array array of master and slave server
+     */
     private function _getSingleServerNode($identifier){
         /**
          * Here we just check whether its a master or slave
@@ -117,6 +190,16 @@ class Db {
         return $result;
     }
     
+    /**
+     * _getNodeType
+     * 
+     * This function will return the node type of the identifier
+     * 
+     * @param type $identifier 
+     * @return int Node type
+     * @throws InvalidDbConfigException This exception will be thrown if the 
+     *                                   db config is not correct
+     */
     private function _getNodeType($identifier){
         $id_frag_arr = explode(".",  $identifier);
         $frag_count  = count($id_frag_arr);
@@ -132,7 +215,17 @@ class Db {
         return $type;
     }
     
-    
+    /**
+     * _getServerNode
+     * 
+     * This function will return the PDO object of the server node
+     * specified by the identifier. It will check in the DbResourceContainer
+     * first if the already created PDO object is there other wise it will
+     * call the _createServer to create a PDO object fresh
+     * 
+     * @param type $identifier identifier of the server node
+     * @return PDO
+     */
     private function _getServerNode($identifier){
         $pdo = DbResourceContainer::get($identifier);
         if(!is_resource($pdo)){
@@ -141,6 +234,16 @@ class Db {
         return $pdo;
     }
     
+    /**
+     * _createServer
+     * 
+     * This function will just create a PDO object from the settings
+     * given in the node identifier
+     * 
+     * @param type $identifier server node identifier
+     * @return PDO
+     * @throws DbConnectErrorException if the connection is not made
+     */
     private function _createServer($identifier){
         $db_config = Config::get($identifier);
         $host = $db_config['host'];
@@ -156,26 +259,51 @@ class Db {
         }
     }
     
+    /**
+     * init
+     * 
+     * Called after __construct function but no use here
+     */
     public function init(){
         
     }
     
+    /**
+     * query
+     * 
+     * This function will pass the query to the appropiate function
+     * and return the result. If the query is CRUD type then the 
+     * query will be redirected to master server. Otherwise the
+     * query will be redirected to slave servers. 
+     * 
+     * @param type $sql 
+     * @param type $params Optional params to be passed in the query
+     * @param type $identifier optional server indentifier
+     * @return int|array int if the query is CRUD which is the number
+     *                    of row affected. Otherwise the array od results
+     * @throws InvalidDbConfigException if the server configuration is incorrect
+     */
     public function query($sql,$params=array(),$identifier=null){
         # In this function 
         # 1. First you have to get the type of query
         # 2. Then you have to get one server to deal with that type
         #    for write query, a master server and for read query a slave server
+        
         if(!is_null($identifier)){
+            # If an identifier is given get the appropiate server
             $servers = $this->_getServers($identifier);
         }else{
+            # Or deal with the default servers in the pool
             $servers = array(
                 'master' => $this->_masters,
                 'slave'  => $this->_slaves
             );
         }
         
+        # Get the query type
         $query_type = $this->_getQueryType($sql);
         
+        # If the query is CRUD type
         if($query_type === self::WRITE){
             $query_server = $this->_getRandomServer($servers['master']);
             if(is_null($query_server)){
@@ -192,17 +320,32 @@ class Db {
         }else{
             throw new InvalidDbConfigException("Bad server type");
         }
+        
+        # Get the PDO object for server
         $server_node = $this->_getServerNode($query_server);
+        # Prepare the query
         $statement = $server_node->prepare($sql);
+        # Finally execute the query
         $statement->execute($params);
         
         try{
+            # If this throws an exception then it would be a CRUD query
             return $statement->fetchAll(PDO::FETCH_ASSOC);
         }catch(PDOException $e){
+            # And we should get the rowcount instead.
             return $statement->rowCount();
         }
     }
     
+    /**
+     * _getRandomServer
+     * 
+     * This function will get a random server from an
+     * array of servers.
+     * 
+     * @param type $server_arr array of possible servers
+     * @return null|string random server identifier
+     */
     private function _getRandomServer($server_arr){
         $server_count = count($server_arr);
         if ($server_count == 0){
@@ -210,11 +353,18 @@ class Db {
         }else if($server_count == 1){
             return $server_arr[0];
         }else{
-            echo "rand:" . $server_index = rand(0, ($server_count - 1));
+            $server_index = rand(0, ($server_count - 1));
             return $server_arr[$server_index];
         }
     }
     
+    /**
+     * _getQueryType
+     * 
+     * This function will returns the type of query
+     * @param type $sql
+     * @return int query type CRUD or SELECT
+     */
     private function _getQueryType($sql){
         $is_insert_query    = strripos($sql,'insert'); // insert
         $is_update_query    = strripos($sql,'update'); // update
@@ -228,6 +378,15 @@ class Db {
     }
 
 
+    /**
+     * __get
+     * 
+     * This funtion will create new DB objects from the current one 
+     * to point to more direct objects.
+     * 
+     * @param type $db_host
+     * @return Db
+     */
     public function __get($db_host){
         if(isset($this->_db_arr[$db_host])){
             return $this->_db_arr[$db_host];
@@ -241,12 +400,6 @@ class Db {
             return $new_node;
         }
     }
-    
-    public function showLayer(){
-        print_r($this->_db_arr);
-    }
-    
-    
 }
 
 ?>

@@ -1,13 +1,21 @@
 <?php 
 
 /**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
  * All the modules that are coming into factories file will be initiated in 
  * a very simple way. All the files will be initiated by the class in the 'handler'
  * element and then after creating its object an init function will be called.
  * After calling this function this object will be saved in components array of 
  * Crucible main object.
- * 
  */
+
 $config = array(
     'all' => array(
         'autoload'=> array(
@@ -38,13 +46,9 @@ $config = array(
         'mailer' => array(
             'handler' => 'SwiftMailer',
             'arguments' => array(
-                'transport' => 'smtp',
+                'transport' => 'phpmail',
                 'params' => array(
-                    'host' => 'smtp.gmail.com',
-                    'port' => '587',
-                    'user' => 'tej.nri@gmail.com',
-                    'pass' => 'patna@123',
-                    'encryption' => 'tls'
+                    
                 )
                 /*
                 # If transport is smtp

@@ -1,6 +1,15 @@
 <?php
+/**
+ * This file is part of Crucible.
+ * (c) 2014 Tejaswi Sharma
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
+ * Request
+ * 
  * This class will gather all the informations about the current
  * request and make available to all the components. This class should 
  * also follow singleton pattern because in each case there is only one 
@@ -9,21 +18,33 @@
  * @author applect
  */
 class Request {
-
+    /**
+     * Instance to hold request object
+     * 
+     * @var Request
+     */
     private static $_instance = null;
 
+    # Constant for post request
     const POST = 'post';
+    # Constant for get request
     const GET = 'get';
+    # syntex for url path 
     const PATH_SYNTEX = "/^\/(\S+\/)*\S*$/";
 
+    # Hold current host
     private $_host;
+    # Hold current url
     private $_url;
+    # Hold request path array
     private $_request_arr=array();
+    # Hold post data
     private $_data=array();
-    private $_named=array();
-    private $_args=array();
+    # Hold cookies data
     private $_cookies=array();
-    private $_is_static=false;
+    # Flag for request for static content
+    private $_is_static=null;
+    # file path if the request is static
     private $_resource_path='';
 
     /**
@@ -31,16 +52,21 @@ class Request {
      * current request 
      */
     private function __construct() {
+        # Set hostname
         $this->_setHost();
-        $this->_setApp();
+        # Set urlname
         $this->_setUrl();
+        # Set request path into array
         $this->_setRequestArr();
+        # Set post & get data
         $this->_setData();
+        # Set cookie
         $this->_setCookie();
-        $this->_setStatic();
     }
 
     /**
+     * This method will return the instance of the 
+     * object itself.
      * 
      * @return Request
      */
@@ -51,6 +77,12 @@ class Request {
         return self::$_instance;
     }
 
+    /**
+     * In the event of cloning of this object this 
+     * method will return the same object created
+     * 
+     * @return Request
+     */
     public function __clone() {
         if (is_null(self::$_instance)) {
             self::$_instance = new Request();
@@ -60,22 +92,15 @@ class Request {
 
     /**
      * This function will get the hostname for which is the 
-     * request is for
+     * request is for and set it to _host variable
      */
     private function _setHost() {
         $this->_host = $_SERVER['HTTP_HOST'];
     }
 
     /**
-     * Set the initial app value from the host config
-     * later it will be set by the router object
-     */
-    private function _setApp(){
-        $this->_named['app'] = Config::get('hosts.my_host.app');
-    }
-    /**
      * This function will get the request url by the which the 
-     * request is made
+     * request is made and set it to _url variable
      */
     private function _setUrl() {
         $this->_url = $_SERVER['REQUEST_URI'];
@@ -118,10 +143,12 @@ class Request {
         # To be a static content the size of RequestArr should be more than 1
         if (count($request_arr) > 1) {
             $static_path_config = Config::get("hosts.my_host.static_paths");
+            $app = Config::get("hosts.my_host.app");
+            
             # First element of the RequestArr should match any of the static_path_element
             if (in_array($request_arr[0], $static_path_config)) {
                 # Ok then finally it should be a actual file
-                $file_path = $this->getAppPath() . DS . 'web' . DS . implode(DS, $request_arr);
+                $file_path = Router::getStaticAppPath($app) . DS . 'web' . DS . implode(DS, $request_arr);
                 if(is_file($file_path)){
                     $this->_is_static = true;
                     $this->_resource_path = $file_path;
@@ -175,6 +202,10 @@ class Request {
      * @return bool
      */
     public function isStatic(){
+        # If its not determined till now
+        if(is_null($this->_is_static)){
+            $this->_setStatic();
+        }
         return $this->_is_static;
     }
     
@@ -182,7 +213,7 @@ class Request {
      * If the content is static it will return the file path
      * of the resource
      * 
-     * @return mixed path of the resource or false
+     * @return false|string path of the resource or false
      */
     public function getResourcePath(){
         if($this->isStatic()){
@@ -210,80 +241,15 @@ class Request {
         return $this->_cookies;
     }
 
-    /**
-     * To set named data Array
-     * 
-     * @param array $data
-     */
-    public function setNamed($data) {
-        $this->_named = $data;
-    }
-
-    /**
-     * To get named data
-     * 
-     * @return array
-     */
-    public function getNamed() {
-        return $this->_named;
-    }
-
-    /**
-     * To set args
-     * 
-     * @param type $data
-     */
-    public function setArgs($data) {
-        $this->_args = $data;
-    }
-
-    /**
-     * To get args
-     * 
-     * @return array
-     */
-    public function getArgs() {
-        return $this->_args;
-    }
-
-    /**
-     * To get the name of the app
-     * 
-     * @return string
-     */
-    public function getApp() {
-        $named = $this->getNamed();
-        return isset($named['app']) ? $named['app'] : null;
-    }
-
-    /**
-     * To get the name of the controller
-     * 
-     * @return string
-     */
-    public function getController() {
-        $named = $this->getNamed();
-        return isset($named['controller']) ? $named['controller'] : null;
-    }
-
-    /**
-     * To get the name of the action
-     * 
-     * @return string
-     */
-    public function getAction() {
-        $named = $this->getNamed();
-        return isset($named['action']) ? $named['action'] : null;
-    }
-
+    
     /**
      * getPathInArray
      * 
      * This function checks the url structure and convert it into
      * array. appending "/" is ignored.
      * 
-     * @param type $path
-     * @return mixed - it returns false if the path do not matches the url or
+     * @param string $path
+     * @return false|array - it returns false if the path do not matches the url or
      * route structure and array of the path of the url do matches route structure. 
      */
     public static function getPathInArray($path) {
@@ -300,28 +266,5 @@ class Request {
             return false;
         }
     }
-
-    /**
-     * Function to return app path
-     * 
-     * @param string $app
-     * @return string
-     */
-    public function getAppPath() {
-        $app = $this->getApp();
-
-        if ($app == 'system') {
-            $path = ROOT . DS . 'lib' . DS . 'system' ;
-        } else if ($app == 'setup') {
-            $path = ROOT . DS . 'lib' . DS . 'setup';
-        } else if (!empty($app)) {
-            $path = ROOT . DS . 'apps' . DS . $app ;
-        } else {
-            $path = '';
-        }
-        return $path;
-    }
-
 }
-
 ?>

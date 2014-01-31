@@ -34,7 +34,7 @@ $config = array(
                         'params' => array(
                             'host' => 'smtp.gmail.com',
                             'port' => '587',
-                            'user' => 'tej.nri@gmail.com',
+                            'user' => 'tejaswi@crucible-framework.org',
                             'pass' => '',
                             'encryption' => 'tls'
                         )
